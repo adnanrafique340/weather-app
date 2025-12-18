@@ -13,7 +13,7 @@ import type {
 } from './types'
 
 
-// App configuration constants
+// App configuration constants setup
 const API_KEY = 'b55616e8a1f4ebd7ddac31a77c399945'
 const PAGE_SIZE = 10
 const REFRESH_MS = 1000 * 60 * 5
@@ -89,7 +89,7 @@ function forecastKey(mode: SearchMode, value: string) {
 
 
 
-// Maps OpenWeatherMap API response to internal WeatherView model
+// Maps Open WeatherMap API response to internal WeatherView model
 function mapWeather(data: Awaited<ReturnType<typeof fetchWeather>>): WeatherView {
   const iconCode = data.weather[0]?.icon ?? '01d'
   return {
