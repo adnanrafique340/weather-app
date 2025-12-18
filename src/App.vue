@@ -1,3 +1,6 @@
+// Main application logic
+// Handles forecasts CRUD, pagination, search, auto-refresh, and notifications
+
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { fetchWeather } from './services/weatherService'
@@ -9,6 +12,8 @@ import type {
   WeatherView,
 } from './types'
 
+
+// App configuration constants
 const API_KEY = 'b55616e8a1f4ebd7ddac31a77c399945'
 const PAGE_SIZE = 10
 const REFRESH_MS = 1000 * 60 * 5
@@ -30,6 +35,8 @@ const form = reactive({
   lon: '',
 })
 
+
+// Showing temporary notification messages (success, error, info)
 function notify(type: AppNotification['type'], text: string) {
   const id = Date.now()
   notifications.value.push({ id, type, text })
@@ -80,6 +87,9 @@ function forecastKey(mode: SearchMode, value: string) {
   return `${mode}-${value}`.toLowerCase()
 }
 
+
+
+// Maps OpenWeatherMap API response to internal WeatherView model
 function mapWeather(data: Awaited<ReturnType<typeof fetchWeather>>): WeatherView {
   const iconCode = data.weather[0]?.icon ?? '01d'
   return {
@@ -201,7 +211,7 @@ async function refreshAll(showMessage = false) {
 function parseError(error: unknown) {
   if (typeof error === 'string') return error
   
-  // Handle axios errors
+  // Handling axios errors
   if (error && typeof error === 'object') {
     const axiosError = error as {
       response?: { data?: { message?: string }; status?: number }
@@ -209,7 +219,7 @@ function parseError(error: unknown) {
       message?: string
     }
     
-    // Network error (no response received)
+    // Network error (if no response received)
     if (axiosError.request && !axiosError.response) {
       return 'Network error: Could not reach the server. Check your internet connection.'
     }
@@ -234,6 +244,8 @@ function parseError(error: unknown) {
   return 'Something went wrong. Please try again.'
 }
 
+
+// Load saved forecasts on app start and enable auto-refresh
 onMounted(() => {
   savedForecasts.value = loadSavedForecasts()
   if (API_KEY && savedForecasts.value.length > 0) {
@@ -242,6 +254,7 @@ onMounted(() => {
   refreshTimer.value = window.setInterval(() => refreshAll(), REFRESH_MS)
 })
 
+// Clear refresh interval when component is destroyed
 onBeforeUnmount(() => {
   if (refreshTimer.value) clearInterval(refreshTimer.value)
 })
